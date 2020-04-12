@@ -1,4 +1,10 @@
 ---
-- include_tasks: jc_search_config.yml
 - include_tasks: jc_plugins.yml
-- include_tasks: jc_config.yml
+  tags:
+    - jc-plugins
+
+- block:
+  - include_tasks: jc_search_config.yml
+  - include_tasks: jc_config.yml
+  tags:
+    - jc-config
