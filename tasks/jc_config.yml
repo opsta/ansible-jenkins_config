@@ -1,0 +1,10 @@
+---
+- name: Copy Jenkins configuration file
+  template:
+    src: "{{ jc_host_config_file_path }}"
+    dest: "{{ jc_config_file_path }}"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart Jenkins
+  when: jc_config_check.stat.exists
