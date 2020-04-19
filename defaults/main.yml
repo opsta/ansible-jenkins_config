@@ -1,11 +1,9 @@
 ---
 jc_plugins_required:
   - configuration-as-code
+  - job-dsl
 
 jc_plugins: []
-
-jc_username: admin
-# jc_password: CHANGEME
 
 jc_url: http://localhost:8080
 
@@ -14,3 +12,18 @@ jc_config_path: /var/lib/jenkins
 jc_config_file_path: "{{ jc_config_path }}/jenkins.yaml"
 jc_search_config_paths: []
 jc_host_config_file_path: "{{ jc_host_config_path | default(inventory_hostname) }}/jenkins.yaml.j2"
+
+jc_init_script_dir: "{{ jc_config_path }}/init.groovy.d"
+jc_create_admin_script_path: "{{ jc_init_script_dir }}/create-admin.groovy"
+
+jc_java_options: "-Djenkins.install.runSetupWizard=false"
+
+jc_init_changes:
+  - option: "{{ jc_java_options_env_var }}"
+    value: "{{ jc_java_options }}"
+
+jc_admin_username: admin
+jc_admin_password: CHANGEME
+
+jc_process_user: jenkins
+jc_process_group: jenkins

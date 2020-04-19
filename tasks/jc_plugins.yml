@@ -2,21 +2,22 @@
 - name: Install plugins without a specific version
   jenkins_plugin:
     name: "{{ item }}"
-    url_username: "{{ jc_username }}"
-    url_password: "{{ jc_password }}"
+    url_username: "{{ jc_admin_username }}"
+    url_password: "{{ jc_admin_password }}"
     url: "{{ jc_url }}"
     timeout: 300
     state: latest
   with_items: "{{ jc_plugins_required + jc_plugins }}"
   notify: Restart Jenkins
 
-- meta: flush_handlers
+- name: Restart to apply new plugins
+  meta: flush_handlers
 
 - name: Plugin enabling
   jenkins_plugin:
     name: "{{ item }}"
-    url_username: "{{ jc_username }}"
-    url_password: "{{ jc_password }}"
+    url_username: "{{ jc_admin_username }}"
+    url_password: "{{ jc_admin_password }}"
     url: "{{ jc_url }}"
     state: enabled
   with_items: "{{ jc_plugins_required + jc_plugins }}"

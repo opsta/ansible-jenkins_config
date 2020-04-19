@@ -1,5 +1,11 @@
 ---
-- include_tasks: jc_plugins.yml
+- block:
+  - include_tasks: jc_init_config.yml
+  tags:
+    - jc-init
+
+- block:
+  - include_tasks: jc_plugins.yml
   tags:
     - jc-plugins
 

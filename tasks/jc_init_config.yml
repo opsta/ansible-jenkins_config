@@ -1,0 +1,54 @@
+---
+- name: Include OS family specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+
+- block: # Initial Jenkins Configuration
+  - name: Check if {{ jc_init_file }} exists.
+    stat:
+      path: "{{ jc_init_file }}"
+    register: jc_init_file_stat
+
+  - name: Ensure {{ jc_init_file }} exists.
+    file:
+      path: "{{ jc_init_file }}"
+      state: touch
+    when: not jc_init_file_stat.stat.exists
+
+  - name: Modify variables in init file.
+    lineinfile:
+      dest: "{{ jc_init_file }}"
+      insertafter: '^{{ item.option }}='
+      regexp: '^{{ item.option }}=\"\${{ item.option }} '
+      line: '{{ item.option }}="${{ item.option }} {{ item.value }}"'
+      state: present
+    with_items: "{{ jc_init_changes }}"
+    notify: Restart Jenkins
+
+
+- block: # Change Admin password
+  - name: Create custom init scripts directory.
+    file:
+      path: "{{ jc_init_script_dir }}"
+      state: directory
+      owner: "{{ jc_process_user }}"
+      group: "{{ jc_process_group }}"
+      mode: 0775
+
+  - name: Upload create admin script
+    template:
+      src: create-admin.groovy.j2
+      dest: "{{ jc_create_admin_script_path }}"
+      owner: "{{ jc_process_user }}"
+      group: "{{ jc_process_group }}"
+      mode: 0775
+    notify: Restart Jenkins
+
+  - name: Restart to apply new init configuration and run script
+    meta: flush_handlers
+
+  - name: Remove Jenkins security init scripts after first startup.
+    file:
+      path: "{{ jc_create_admin_script_path }}"
+      state: absent
