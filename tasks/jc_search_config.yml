@@ -1,26 +1,30 @@
 ---
-- name: Set list of path to look for local Jenkins configuration directory
-  set_fact:
-    jc_search_config_paths: "{{ jc_search_config_paths }} + [ '{{ jc_search_config_path }}' ]"
-  with_items: "{{ group_names }}"
+- name: Search for configuration
+  when: jc_host_config_path is undefined
+  block:
+    - name: Set list of path to look for local Jenkins configuration directory
+      set_fact:
+        jc_search_config_paths: "{{ jc_search_config_paths }} + [ '{{ jc_search_config_path }}' ]"
+      with_items: "{{ group_names }}"
 
-- name: Check if Jenkins configuration directory exists
-  stat:
-    path: "{{ item }}"
-  register: jc_config_check
-  become: false
-  delegate_to: 127.0.0.1
-  with_first_found:
-    - files: "{{ jc_search_config_paths }}"
-      skip: true
+    - name: Check if Jenkins configuration directory exists
+      stat:
+        path: "{{ item }}"
+      register: jc_config_check
+      become: false
+      delegate_to: 127.0.0.1
+      with_first_found:
+        - files: "{{ jc_search_config_paths }}"
+          skip: true
 
-- name: Set Jenkins configuration directory
-  set_fact:
-    jc_host_config_path: "{{ jc_config_check.results[0].stat.path }}"
-  when:
-    - jc_config_check.results[0] is defined
-    - jc_config_check.results[0].stat is defined
-    - jc_config_check.results[0].stat.isdir
+    - name: Set Jenkins configuration directory
+      set_fact:
+        jc_host_config_path: "{{ jc_config_check.results[0].stat.path }}"
+      when:
+        - jc_config_check.results[0] is defined
+        - jc_config_check.results[0].stat is defined
+        - jc_config_check.results[0].stat.isdir
+
 
 - name: Check if Jenkins template configuration file is exists
   stat:

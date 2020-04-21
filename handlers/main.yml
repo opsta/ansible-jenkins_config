@@ -17,3 +17,19 @@
   until: >
       'status' in jc_service_status and
       jc_service_status['status'] == 200
+
+- name: Reload Jenkins Configuration as Code
+  jenkins_script:
+    script: |
+      import io.jenkins.plugins.casc.ConfigurationAsCode;
+      ConfigurationAsCode.get().configure()
+    user: "{{ jc_admin_username }}"
+    password: "{{ jc_admin_password }}"
+    url: "{{ jc_url }}"
+  notify: Remove Jenkins Configuration as Code file
+  changed_when: true
+
+- name: Remove Jenkins Configuration as Code file
+  file:
+    path: "{{ jc_config_file_path }}"
+    state: absent
