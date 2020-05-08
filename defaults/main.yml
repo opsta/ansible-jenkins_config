@@ -9,7 +9,8 @@ jc_url: http://localhost:8080
 
 jc_search_config_path: "{{ playbook_dir }}/files/groups/{{ item }}/jenkins"
 jc_config_path: /var/lib/jenkins
-jc_config_file_path: "{{ jc_config_path }}/jenkins.yaml"
+jc_casc_path: "{{ jc_config_path }}/casc"
+jc_casc_filename: "{{ group_names[0] }}.yaml"
 jc_search_config_paths: []
 jc_host_config_file_path: "{{ jc_host_config_path | default(inventory_hostname) }}/jenkins.yaml.j2"
 

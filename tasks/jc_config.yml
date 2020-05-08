@@ -1,10 +1,27 @@
 ---
+- name: Create Jenkins Configuration as Code config files directory
+  file:
+    path: "{{ jc_casc_path }}"
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: 0755
+
+- name: Populate environment variable for Jenkins Configuration as Code to read config file
+  lineinfile:
+    dest: "/etc/rc.d/init.d/jenkins"
+    state: present
+    regexp: "^\texport CASC_JENKINS_CONFIG="
+    line: "\texport CASC_JENKINS_CONFIG={{ jc_casc_path }}/"
+    insertafter: "^\techo -n \"Starting Jenkins \""
+  notify: Restart Jenkins
+
 - name: Copy Jenkins configuration file
   template:
     src: "{{ jc_host_config_file_path }}"
-    dest: "{{ jc_config_file_path }}"
-    owner: root
-    group: root
+    dest: "{{ jc_casc_path }}/{{ jc_casc_filename }}"
+    owner: jenkins
+    group: jenkins
     mode: 0644
   notify: Reload Jenkins Configuration as Code
   when: jc_config_check.stat.exists

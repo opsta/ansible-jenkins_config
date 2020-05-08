@@ -1,8 +1,9 @@
 ---
 - name: Restart Jenkins
-  service:
-    name: jenkins
+  systemd:
     state: restarted
+    daemon_reload: yes
+    name: jenkins
   notify: Wait for Jenkins to start up
 
 - name: Wait for Jenkins to start up
@@ -26,10 +27,4 @@
     user: "{{ jc_admin_username }}"
     password: "{{ jc_admin_password }}"
     url: "{{ jc_url }}"
-  notify: Remove Jenkins Configuration as Code file
   changed_when: true
-
-- name: Remove Jenkins Configuration as Code file
-  file:
-    path: "{{ jc_config_file_path }}"
-    state: absent
